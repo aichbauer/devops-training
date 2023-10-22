@@ -1,0 +1,94 @@
+name: "Infrastructure Pipeline"
+
+run-name: "Infrastructure deploy by @${{ github.actor }}"
+
+# These environment variables are used by the terraform azure provider
+env:
+  ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+  ARM_CLIENT_SECRET: "${{ secrets.AZURE_CLIENT_SECRET }}"
+  ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+  ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+
+on:
+  workflow_dispatch: # allow trigger from github dashboard
+  # push:
+  #   branches:
+  #     - "main"
+  #   paths:
+  #     - "ops/terraform/infra/**.**"
+  #     - ".github/workflows/infrastructure.yaml"
+
+# Got parts from:
+# https://github.com/Azure-Samples/terraform-github-actions/blob/main/.github/workflows/tf-plan-apply.yml
+jobs:
+  terraform_plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: "Checkout"
+      uses: actions/checkout@v3
+
+    # Install the latest version of the Terraform CLI
+    - name: "Setup Terraform"
+      uses: hashicorp/setup-terraform@v2
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: "Terraform Init"
+      run: terraform init
+      working-directory: 'ops/terraform/infra'
+
+    # Generates an execution plan for Terraform
+    - name: "Terraform Plan"
+      working-directory: 'ops/terraform/infra'
+      run: terraform plan -var devops_test_database_password="${{ secrets.DB_PASS }}" -detailed-exitcode -no-color -out tfplan
+
+    # Save plan to artifacts
+    - name: "Publish Terraform Plan"
+      uses: actions/upload-artifact@v3
+      with:
+        name: tfplan
+        path: ops/terraform/infra/tfplan
+
+  terraform_apply:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [terraform_plan]
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: "Checkout"
+      uses: actions/checkout@v3
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: "Setup Terraform"
+      uses: hashicorp/setup-terraform@v2
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: "Terraform Init"
+      run: terraform init
+      working-directory: 'ops/terraform/infra'
+
+    # Download saved plan from artifacts
+    - name: "Download Terraform Plan"
+      uses: actions/download-artifact@v3
+      with:
+        name: tfplan
+        path: ops/terraform/infra
+
+    # Terraform Apply
+    - name: "Terraform Apply"
+      run: terraform apply -auto-approve tfplan
+      working-directory: 'ops/terraform/infra'
+
+  cleanup:
+    name: "Cleanup Artifacts if main branch"
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [terraform_apply]
+    steps:
+    - name: "Delete Artifact"
+      uses: geekyeggo/delete-artifact@v2
+      with:
+        name: tfplan

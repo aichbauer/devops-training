@@ -1,0 +1,77 @@
+# This YAML script defines a Kubernetes Deployment resource for routing external traffic to a service.
+
+# Specifies the API version of the Deployment object
+apiVersion: apps/v1
+# Defines the kind of resource being created, which is a Deployment
+# a deployment can spin up pods
+# one pod is a running container
+kind: Deployment
+metadata:
+  # Name of the Deployment
+  name: devops-backend-deployment
+  # Namespace in which the Deployment is applied
+  namespace: devops-test
+  # Labels can be any key-value pairs used to manage Kubernetes resources
+  labels:
+    # Label for identifying the application
+    app: devops-backend-deployment
+spec:
+  # Number of desired replicas (instances beter known as pods) of the application
+  replicas: {{ default 1 .Values.replicaCount | int }}
+  selector:
+    matchLabels:
+      # Label selector for matching Pods managed by the Deployment
+      app: devops-backend-pod
+    # the secrets that are used for pulling at the docker hub
+  template:
+    metadata:
+      labels:
+        # Label for the Pod template
+        app: devops-backend-pod
+    spec:
+      nodeSelector:
+        # Node selector for scheduling Pods on nodes with the "kubernetes.io/os" label set to "linux"
+        "kubernetes.io/os": linux
+      imagePullSecrets:
+        - name: regcred
+      initContainers:
+      - name: devops-test-init
+        image: {{ .Values.image }}
+        imagePullPolicy: Always
+        env:
+          {{- include "devops-test-backend.envVariables" . | indent 10 }}
+        resources:
+          limits:
+            memory: 128Mi
+            cpu: 100m
+          requests:
+            memory: 128Mi
+            cpu: 100m
+        command:
+          - sh
+          - -c
+          - npm run migrate
+        ports:
+          - containerPort: 3000
+      containers:
+      # Name of the container
+      - name: devops-backend-container
+        # Docker image used for the container
+        image: "{{ .Values.image }}"
+        imagePullPolicy: Always
+        env:
+          {{- include "devops-test-backend.envVariables" . | indent 10 }}
+        resources:
+          requests:
+            # CPU resource request for the container
+            cpu: 100m
+            # Memory resource request for the container
+            memory: 128Mi
+          limits:
+            # CPU resource limit for the container
+            cpu: 250m
+            # Memory resource limit for the container
+            memory: 256Mi
+        ports:
+        # Port on which the container listens for incoming traffic
+        - containerPort: 3000

@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  # Database
+  db:
+    image: postgres:11-alpine
+    volumes:
+      - postgres_share_image_app:/var/lib/postgresql/data
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+    ports:
+      - '5431:5432'
+
+volumes:
+  postgres_share_image_app:

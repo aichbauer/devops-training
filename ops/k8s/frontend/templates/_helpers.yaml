@@ -1,0 +1,6 @@
+{{- define "devops-test-frontend.envVariables" }}
+- name: BASE_API_URL
+  value: "https://devops-test-backend.systemlab.info"
+- name: BASE_APP_URL
+  value: "https://devops-test-frontend.systemlab.info"
+{{- end }}

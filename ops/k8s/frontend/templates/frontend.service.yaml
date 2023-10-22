@@ -1,0 +1,30 @@
+# This YAML script defines a Kubernetes Service resource for a deployment named "devops-service".
+
+# Specifies the API version being used for the Kubernetes resource
+apiVersion: v1
+# Specifies the type of Kubernetes resource, which is a Service in this case
+kind: Service
+# Metadata associated with the Service
+metadata:
+  # Name of the Service
+  name: devops-frontend-service
+  # Namespace in which the Service will be created
+  namespace: devops-test
+  # Labels to apply to the Service for identification
+  labels:
+    app: devops-frontend-service
+# The specification of the Service
+spec:
+  # Type of the Service - ClusterIP exposes the Service on an internal IP in the cluster
+  type: ClusterIP
+  # Selector used to determine which pods the Service will route traffic to
+  selector:
+    app: devops-frontend-pod
+  # Ports configuration for the Service
+  ports:
+  - # Specifies the protocol of the port (TCP in this case)
+    protocol: TCP
+    # Port number exposed on the Service
+    port: 80
+    # Target port on the pods to which traffic will be forwarded
+    targetPort: 80

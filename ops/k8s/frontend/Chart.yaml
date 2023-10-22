@@ -1,0 +1,3 @@
+apiVersion: v2
+name: devops-test-frontend
+version: 0.0.0

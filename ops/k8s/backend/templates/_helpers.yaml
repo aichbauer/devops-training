@@ -1,0 +1,41 @@
+{{- define "devops-test-backend.envVariables" }}
+- name: DB_HOST
+  valueFrom:
+    secretKeyRef:
+      key: db-host
+      name: api-secrets-devops-test
+- name: DB_PORT
+  valueFrom:
+    secretKeyRef:
+      key: db-port
+      name: api-secrets-devops-test
+- name: DB_NAME
+  valueFrom:
+    secretKeyRef:
+      key: db-name
+      name: api-secrets-devops-test
+- name: DB_USER
+  valueFrom:
+    secretKeyRef:
+      key: db-user
+      name: api-secrets-devops-test
+- name: DB_PASS
+  valueFrom:
+    secretKeyRef:
+      key: db-pass
+      name: api-secrets-devops-test
+# in Prod you would likely use RS256 (public and private key) instead of HS256
+- name: JWT_SECRET
+  valueFrom:
+    secretKeyRef:
+      key: jwt-secret
+      name: api-secrets-devops-test
+- name: JWT_ISSUER
+  value: 'devops-test'
+- name: JWT_AUDIENCE
+  value: 'image-share-app'
+- name: JWT_LANGUAGE
+  value: 'en-US'
+- name: APP_URL
+  value: 'https://devops-test-frontend.systemlab.info'
+{{- end }}

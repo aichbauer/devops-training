@@ -1,0 +1,61 @@
+# This YAML script defines a Kubernetes Ingress resource for routing external traffic to a service.
+
+# Specifies the API version being used for the Kubernetes resource.
+apiVersion: networking.k8s.io/v1
+# Specifies the type of Kubernetes resource, which is an Ingress in this case.
+kind: Ingress
+# Metadata associated with the Ingress.
+metadata:
+  # Name of the Ingress.
+  name: devops-frontend-ingress
+  # Namespace in which the Ingress will be created.
+  namespace: devops-test
+  # Labels to apply to the Ingress for identification.
+  labels:
+    app: devops-frontend-ingress
+  # Annotations provide additional information and configuration for the Ingress.
+  annotations:
+    # Annotation for rewriting the target path in the HTTP request (used for URL manipulation).
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # Annotation specifying the cluster issuer for SSL certificate (Let's Encrypt in this case).
+    # remember we created this before
+    cert-manager.io/cluster-issuer: letsencrypt-production
+# The specification of the Ingress.
+spec:
+  # Specifies the class of the Ingress controller to use (nginx in this case).
+  # this was created by installing the ingress controller
+  # without this class the routing of the traffic would not work
+  ingressClassName: nginx
+  # Rules for routing incoming traffic.
+  rules:
+    # Specifies the host (domain) to route traffic for.
+    # Make sure the DNS points to the load balancer's IP.
+    # In production, DNS management can be handled via Terraform.
+    - host: devops-test-frontend.systemlab.info
+      # HTTP configuration for the specified host.
+      http:
+        # Paths to match for incoming requests.
+        paths:
+          - # Path to match (root in this case).
+            path: /
+            # Path type (Prefix in this case).
+            pathType: Prefix
+            # Backend configuration for routing traffic to a Service.
+            backend:
+              service:
+                # Name of the target Service.
+                name: devops-frontend-service
+                # Port configuration for the Service.
+                port:
+                  # Port number to forward traffic to on the Service.
+                  number: 80
+  # TLS configuration for securing traffic.
+  tls:
+  - # Hosts for which the TLS certificate is issued.
+    hosts:
+    - devops-test-frontend.systemlab.info
+    # Name of the secret that holds the TLS certificate.
+    # you can verify them in the secrets
+    # kubectl get secrets -A
+    # kubectl describe tls-devops-ingress -n devops-test
+    secretName: tls-devops-frontend-ingress
