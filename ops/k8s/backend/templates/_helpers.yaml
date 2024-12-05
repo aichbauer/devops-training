@@ -37,5 +37,5 @@
 - name: JWT_LANGUAGE
   value: 'en-US'
 - name: APP_URL
-  value: 'https://devops-test-frontend.systemlab.info'
+  value: 'https://devops-test-frontend.devopscycle.com'
 {{- end }}

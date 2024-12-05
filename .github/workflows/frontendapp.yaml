@@ -47,8 +47,8 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops-test:frontend-${{ github.sha }}
         outputs: type=docker,dest=/tmp/docker.tar
         build-args: |
-          BASE_API_URL=https://devops-test-backend.systemlab.info
-          BASE_APP_URL=https://devops-test-frontend.systemlab.info
+          BASE_API_URL=https://devops-test-backend.devopscycle.com
+          BASE_APP_URL=https://devops-test-frontend.devopscycle.com
 
     - name: "Upload artifact"
       uses: actions/upload-artifact@v3

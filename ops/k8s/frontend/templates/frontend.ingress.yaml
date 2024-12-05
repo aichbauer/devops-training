@@ -31,7 +31,7 @@ spec:
     # Specifies the host (domain) to route traffic for.
     # Make sure the DNS points to the load balancer's IP.
     # In production, DNS management can be handled via Terraform.
-    - host: devops-test-frontend.systemlab.info
+    - host: devops-test-frontend.devopscycle.com
       # HTTP configuration for the specified host.
       http:
         # Paths to match for incoming requests.
@@ -53,7 +53,7 @@ spec:
   tls:
   - # Hosts for which the TLS certificate is issued.
     hosts:
-    - devops-test-frontend.systemlab.info
+    - devops-test-frontend.devopscycle.com
     # Name of the secret that holds the TLS certificate.
     # you can verify them in the secrets
     # kubectl get secrets -A

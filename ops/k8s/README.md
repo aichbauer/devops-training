@@ -104,7 +104,7 @@ First get the external IP of your load-balancer.
 $ kubectl get service -n devops-test
 ```
 
-Set up your dns settings. In my case I use test.systemlab.info to point to my cluster by creating a A Record
+Set up your dns settings. In my case I use test.devopscycle.com to point to my cluster by creating a A Record
 
 ```sh
 # create a helm package

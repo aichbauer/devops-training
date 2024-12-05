@@ -22,7 +22,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     admin_username = "ubuntu"
 
     ssh_key {
-      key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
+      key_data = azapi_resource_action.ssh_public_key_gen.output.publicKey
     }
   }
   network_profile {
@@ -78,7 +78,6 @@ resource "azurerm_postgresql_database" "devops_test_prostgres_database" {
   collation           = "English_United States.1252"
   timeouts {
     create = "420m"
-    update = "420m"
     delete = "30m"
   }
 }
@@ -91,7 +90,6 @@ resource "azurerm_postgresql_firewall_rule" "example" {
   end_ip_address      = "255.255.255.255"
     timeouts {
     create = "420m"
-    update = "420m"
     delete = "30m"
   }
 }
